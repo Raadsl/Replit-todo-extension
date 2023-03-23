@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <link rel="icon" type="image/png" href="todo.png">
+
+    <link href="https://replitcss.hecker40.repl.co/replit.css" rel="stylesheet" type="text/css"/>
+   <script src="https://unpkg.com/@replit/extensions@0.27.0/dist/index.global.js"></script>
+    <style>
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color:white;
+        cursor: pointer;
+      }
+
+      li button {
+        margin-left: 10px;
+      }
+      li.completed {
+        text-decoration: line-through;
+      }
+    </style>
+  </head>
+  <body>
+   
+    <section class="container">
+      <h1>Todo List</h1>
+      <h6 id='wlc' hidden></h6>
+      <p id='errors' hidden></p>
+
+      <form id="todo-form">
+        <input type="text" id="todo-input" placeholder="Add a todo item">
+        <button type="submit" class="btn btn-primary">Add</button>
+      </form>
+      <ul id="todo-list">
+      </ul>
+    </section>
+  </body>
+  <script>
+  const todoForm = document.querySelector('#todo-form');
+  const todoInput = document.querySelector('#todo-input');
+  const todoList = document.querySelector('#todo-list');
+
+// Save the current list items to a file
+// Encode the content in base64 before saving to file
+function save(x=null) {
+  const path = '.todo';
+  const items = Array.from(todoList.querySelectorAll('li')).map(li => li.innerText.trim());
+  if(items.length == 0) {
+    console.error("[TODOLIST] No items in Todo list")
+    return replit.fs.writeFile(path, "# No items in todo list")
+    }
+    const content = btoa(items.join('\n')); // encode to base64
+    replit.fs.writeFile(path, content);
+    document.getElementById("errors").hidden = true
+  if(x === null) {
+   console.log("[TODOLIST] Saved")
+  } else {
+   console.log("[TODOLIST] Auto save")
+  }
+}
+
+// Decode the content from base64 when loading from file
+async function load() {
+  console.debug("[TODOLIST] Load called")
+  const path = '.todo';
+  try {
+  const { content } = await replit.fs.readFile(path);
+  if (content) {
+  const items = atob(content.trim()).split('\n'); // decode from base64
+  items.forEach((text) => {
+  // Skip lines that start with #
+  if (text.startsWith('#')) return;
+    text = text.replace(/Delete/g, '').trim();
+    if (text !== '') {
+      const li = document.createElement('li');
+      const deleteButton = document.createElement('button');
+      deleteButton.innerText = 'Delete';
+      deleteButton.classList.add('btn', 'btn-smol', 'btn-red', 'btn-right');
+      deleteButton.addEventListener('click', function() {
+        li.remove();
+        save();
+      });
+      li.innerText = text;
+      li.appendChild(deleteButton);
+      todoList.appendChild(li);
+      li.addEventListener('click', function() {
+        this.classList.toggle('completed');
+        save();
+      });
+    }
+  });
+} else {
+  console.error("[TODOLIST] No file called .todo"); 
+  await replit.messages.showNotice("Created .todo file!",2000);
+  await replit.fs.writeFile(path, "# Add '.todo' to the hidden array in the .replit file to hide this file!")
+  document.getElementById("errors").hidden = false
+  document.getElementById("wlc").hidden = false
+  document.getElementById("errors").innerHTML = `I could not find any file that matches '.todo', so I will create it automatically. If you don't constantly want to see it in your directory you can add it to the array called 'hidden' in the '.replit' file. Simply add ', ".todo"' to the array`
+  document.getElementById("wlc").innerHTML = `Thanks for installing this extension!`
+}
+} catch (err) {
+  console.error(`[TODOLIST] Failed to load file ${path}: ${err.error}`);
+}
+  console.log("[TODOLIST] Todo List extension loaded\nMade by Raadsel\n- https://www.raadsel.tech")
+  await replit.messages.showConfirm("Todo list loaded!",2000);
+}
+
+// Add a new item to the list
+function addItem(text) {
+  const li = document.createElement('li');
+  const deleteButton = document.createElement('button');
+  deleteButton.innerText = 'Delete';
+  deleteButton.classList.add('btn', 'btn-smol', 'btn-red', 'btn-right');
+  deleteButton.addEventListener('click', function() {
+    li.remove();
+    save();
+  });
+  li.textContent = text;
+  li.appendChild(deleteButton);
+  todoList.appendChild(li);
+  li.addEventListener('click', function() {
+    this.classList.toggle('completed');
+    save();
+  });
+  console.log("[TODOLIST] Item added")
+  replit.messages.showConfirm("Item added",1000);
+  save();
+}
+
+  // Handle form submission
+todoForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const todoText = todoInput.value.trim();
+    if (todoText !== '') {
+      addItem(todoText);
+      todoInput.value = '';
+    }
+    save()
+  });
+
+  // Load any saved items when the page loads
+load();
+console.debug("[TODOLIST] Sanity check\n- Version 1.1")
+const saveloop = setInterval(function() {save(1)}, 10000);
+</script>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "Todo List extenion",
+  "description": "A todo list extension to keep track with what you still need to do!",
+  "version": "0",
+  "tags": ["Todo", "list", "utils", "simple", "FS API", "Raadsel", "files", "keep", "store", "do", "to-do", "Tasks", "Task manager", "lists", "manager"],
+  "icon": "todo.png",
+  "website": "https://Todo-ext.raadsel.repl.co",
+  "supportEmail": "ext.support+TodoList@jorik.email",
+  "longDescription": "The first todo list extension on Replit! Keep track with what you still need to do! (probably a lot). It uses the fs API from Replit extensions, and the replitCSS lib from @Hecker40. It creates a .todo file to store it per Repl, and it encodes it in base64 so it can fit on one line.",
+  "coverImages": [
+    {
+      "path": "cover.png",
+      "label": "Screenshot of the todo list"
+    }
+  ],
+  "fileHandlers": []
+}
