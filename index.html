@@ -8,10 +8,26 @@
 
     <link href="replit.css" rel="stylesheet" type="text/css"/>
    <script src="https://unpkg.com/@replit/extensions@0.30.1/dist/index.global.js"></script>
-    <script type='module' defer>
-      import themesLib from 'https://extension-theme-lib.potentialstyx.repl.co/module.js';
-    
-      await themesLib(replit);
+    <script defer>
+      replit.theme.getCurrentTheme().then(theme => {
+            console.log(theme)
+            for (const value in theme.values.global) {
+                
+                if (!value.startsWith('_')) {
+                    const ACCENTS = ["red","orange","yellow","lime","green","teal","blue","blue","blurple","purple","magenta","pink","grey","brown"];
+                    let accent = "";
+                    for (let accentColor of ACCENTS) {
+                      if (value.startsWith(accentColor)){
+                        accent = "accent-";
+                        break;
+                      }
+                    }
+                    const cssVariableName = '--' + accent + value.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)
+                    console.log(cssVariableName)
+                    document.documentElement.style.setProperty(cssVariableName, theme.values.global[value])
+                }
+            }
+        })
     </script>
       <style>
       li {
@@ -148,10 +164,11 @@ todoForm.addEventListener('submit', function(event) {
     }
     save()
   });
-
   // Load any saved items when the page loads
 load();
 console.debug("[TODOLIST] Sanity check\n- Version 1.1")
-const saveloop = setInterval(function() {save(1)}, 10000);
+const saveloop = setInterval(function() {
+  save(1);
+}, 10000);
 </script>
 </html>
