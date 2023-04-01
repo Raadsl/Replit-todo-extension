@@ -23,7 +23,6 @@
                       }
                     }
                     const cssVariableName = '--' + accent + value.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)
-                    console.log(cssVariableName)
                     document.documentElement.style.setProperty(cssVariableName, theme.values.global[value])
                 }
             }
