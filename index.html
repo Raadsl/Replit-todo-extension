@@ -7,26 +7,15 @@
     <link rel="icon" type="image/png" href="todo.png">
 
     <link href="replit.css" rel="stylesheet" type="text/css"/>
-   <script src="https://unpkg.com/@replit/extensions@0.30.1/dist/index.global.js"></script>
-    <script defer>
-      replit.theme.getCurrentTheme().then(theme => {
-            console.log(theme)
-            for (const value in theme.values.global) {
-                
-                if (!value.startsWith('_')) {
-                    const ACCENTS = ["red","orange","yellow","lime","green","teal","blue","blue","blurple","purple","magenta","pink","grey","brown"];
-                    let accent = "";
-                    for (let accentColor of ACCENTS) {
-                      if (value.startsWith(accentColor)){
-                        accent = "accent-";
-                        break;
-                      }
-                    }
-                    const cssVariableName = '--' + accent + value.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)
-                    document.documentElement.style.setProperty(cssVariableName, theme.values.global[value])
-                }
-            }
-        })
+   <script src="https://unpkg.com/@replit/extensions@1.1.0/dist/index.global.js"></script>
+  <script type="module">
+      import themesLib from 'https://extension-theme-lib.potentialstyx.repl.co/module.js';
+  
+      try {
+        await themesLib(replit);
+      } catch (err) {
+        console.error('Error getting theme:', err);
+      }
     </script>
       <style>
       li {
@@ -68,7 +57,7 @@
 // Save the current list items to a file
 // Encode the content in base64 before saving to file
 function save(x=null) {
-  const path = '.todo';
+  const path = '.todoignore';
   const items = Array.from(todoList.querySelectorAll('li')).map(li => li.innerText.trim());
   if(items.length == 0) {
     console.error("[TODOLIST] No items in Todo list")
@@ -87,7 +76,7 @@ function save(x=null) {
 // Decode the content from base64 when loading from file
 async function load() {
   console.debug("[TODOLIST] Load called")
-  const path = '.todo';
+  const path = '.todoignore';
   try {
   const { content } = await replit.fs.readFile(path);
   if (content) {
@@ -115,12 +104,13 @@ async function load() {
     }
   });
 } else {
-  console.error("[TODOLIST] No file called .todo"); 
-  await replit.messages.showNotice("Created .todo file!",2000);
-  await replit.fs.writeFile(path, "# Add '.todo' to the hidden array in the .replit file to hide this file!")
+  console.error("[TODOLIST] No file called .todoignore"); 
+  await replit.messages.showNotice("Created .todoignore file!",2000);
+  await replit.fs.writeFile(path, "# file to save todo items!")
+  await addTodoToHidden()
   document.getElementById("errors").hidden = false
   document.getElementById("wlc").hidden = false
-  document.getElementById("errors").innerHTML = `I could not find any file that matches '.todo', so I will create it automatically. If you don't constantly want to see it in your directory you can add it to the array called 'hidden' in the '.replit' file. Simply add ', ".todo"' to the array`
+  document.getElementById("errors").innerHTML = `I could not find any file that matches '.todoignore', so I will create it automatically. Have fun with this extension!`
   document.getElementById("wlc").innerHTML = `Thanks for installing this extension!`
 }
 } catch (err) {
@@ -129,6 +119,31 @@ async function load() {
   console.log("[TODOLIST] Todo List extension loaded\nMade by Raadsel\n- https://www.raadsel.tech")
   await replit.messages.showConfirm("Todo list loaded!",2000);
 }
+
+
+async function addTodoToHidden() { //WIP
+  try {
+    const content = await replit.fs.readFile('.replit', 'utf8');
+    console.log(content);
+
+    const config = TOML.parse(content);
+    console.log(config);
+
+    if (!config.hidden.includes('.todoignore')) {
+      // Add '.todoignore' to the 'hidden' array
+      config.hidden.push('.todoignore');
+
+      // Write the updated contents back to the TOML file
+      await replit.fs.writeFile('.replit', TOML.stringify(config));
+      console.log("[TODOLIST] .todoignore saved in hidden array in .replit file");
+    } else {
+      console.log('[TODOLIST] .todoignore is already in the hidden list');
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 
 // Add a new item to the list
 function addItem(text) {

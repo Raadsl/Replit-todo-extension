@@ -4,7 +4,12 @@ hidden=[".config"]
 # [hosting]
 # route = "/"
 # directory= "/"
-
+[extension]
+isExtension = true
+# Ignore the following line if your extension hasn't been posted on the Private Store yet
+buildCommand = ""
+outputDirectory = "./"
+extensionID = "6966633f-e437-43f1-b120-e4f30e85d3df"
 [nix]
 channel = "stable-21_11"
 
